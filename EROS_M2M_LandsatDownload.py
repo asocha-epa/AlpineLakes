@@ -110,92 +110,92 @@ if __name__ == '__main__':
     
     # download datasets
     for dataset in datasets:
-        
-        acquisitionFilter = {"end": f"{i}-07-31",
-                                 "start": f"{i}-07-01" }        
+        for i in range(1982,2023):
+            acquisitionFilter = {"end": f"{i}-07-31",
+                                     "start": f"{i}-07-01" }        
+                
+                payload = {'datasetName' : dataset['datasetAlias'], 
+                                        # 'maxResults' : 2,
+                                        # 'startingNumber' : 1, 
+                                         'sceneFilter' : { 'cloudCoverFilter' : {"min": 0, "max": 90},
+                                                          'spatialFilter' : spatialFilter,
+                                                          'acquisitionFilter' : acquisitionFilter}}
             
-            payload = {'datasetName' : dataset['datasetAlias'], 
-                                    # 'maxResults' : 2,
-                                    # 'startingNumber' : 1, 
-                                     'sceneFilter' : { 'cloudCoverFilter' : {"min": 0, "max": 90},
-                                                      'spatialFilter' : spatialFilter,
-                                                      'acquisitionFilter' : acquisitionFilter}}
-        
-        # Now I need to run a scene search to find data to download
-        print("Searching scenes...\n\n")   
-        
-        scenes = sendRequest(serviceUrl + "scene-search", payload, apiKey)
-    
-        # Did we find anything?
-        if scenes['recordsReturned'] > 0:
-            # Aggregate a list of scene ids
-            sceneIds = []
-            for result in scenes['results']:
-                # Add this scene to the list I would like to download
-                sceneIds.append(result['entityId'])
+            # Now I need to run a scene search to find data to download
+            print("Searching scenes...\n\n")   
             
-            # Find the download options for these scenes
-            # NOTE :: Remember the scene list cannot exceed 50,000 items!
-            payload = {'datasetName' : dataset['datasetAlias'], 'entityIds' : sceneIds}
-                                
-            downloadOptions = sendRequest(serviceUrl + "download-options", payload, apiKey)
+            scenes = sendRequest(serviceUrl + "scene-search", payload, apiKey)
         
-            # Aggregate a list of available products
-            downloads = []
-            for product in downloadOptions:
-                    # Make sure the product is available for this scene
-                    if product['available'] == True:
-                         downloads.append({'entityId' : product['entityId'],
-                                           'productId' : product['id']})
-                         
-            # Did we find products?
-            if downloads:
-                requestedDownloadsCount = len(downloads)
-                # set a label for the download request
-                label = "download-sample"
-                payload = {'downloads' : downloads,
-                                             'label' : label}
-                # Call the download to get the direct download urls
-                requestResults = sendRequest(serviceUrl + "download-request", payload, apiKey)          
-                              
-                # PreparingDownloads has a valid link that can be used but data may not be immediately available
-                # Call the download-retrieve method to get download that is available for immediate download
-                if requestResults['preparingDownloads'] != None and len(requestResults['preparingDownloads']) > 0:
-                    payload = {'label' : label}
-                    moreDownloadUrls = sendRequest(serviceUrl + "download-retrieve", payload, apiKey)
-                    
-                    downloadIds = []  
-                    
-                    for download in moreDownloadUrls['available']:
-                        if str(download['downloadId']) in requestResults['newRecords'] or str(download['downloadId']) in requestResults['duplicateProducts']:
-                            downloadIds.append(download['downloadId'])
-                            print("DOWNLOAD: " + download['url'])
-                        
-                    for download in moreDownloadUrls['requested']:
-                        if str(download['downloadId']) in requestResults['newRecords'] or str(download['downloadId']) in requestResults['duplicateProducts']:
-                            downloadIds.append(download['downloadId'])
-                            print("DOWNLOAD: " + download['url'])
-                     
-                    # Didn't get all of the reuested downloads, call the download-retrieve method again probably after 30 seconds
-                    while len(downloadIds) < (requestedDownloadsCount - len(requestResults['failed'])): 
-                        preparingDownloads = requestedDownloadsCount - len(downloadIds) - len(requestResults['failed'])
-                        print("\n", preparingDownloads, "downloads are not available. Waiting for 30 seconds.\n")
-                        time.sleep(30)
-                        print("Trying to retrieve data\n")
+            # Did we find anything?
+            if scenes['recordsReturned'] > 0:
+                # Aggregate a list of scene ids
+                sceneIds = []
+                for result in scenes['results']:
+                    # Add this scene to the list I would like to download
+                    sceneIds.append(result['entityId'])
+                
+                # Find the download options for these scenes
+                # NOTE :: Remember the scene list cannot exceed 50,000 items!
+                payload = {'datasetName' : dataset['datasetAlias'], 'entityIds' : sceneIds}
+                                    
+                downloadOptions = sendRequest(serviceUrl + "download-options", payload, apiKey)
+            
+                # Aggregate a list of available products
+                downloads = []
+                for product in downloadOptions:
+                        # Make sure the product is available for this scene
+                        if product['available'] == True:
+                             downloads.append({'entityId' : product['entityId'],
+                                               'productId' : product['id']})
+                             
+                # Did we find products?
+                if downloads:
+                    requestedDownloadsCount = len(downloads)
+                    # set a label for the download request
+                    label = "download-sample"
+                    payload = {'downloads' : downloads,
+                                                 'label' : label}
+                    # Call the download to get the direct download urls
+                    requestResults = sendRequest(serviceUrl + "download-request", payload, apiKey)          
+                                  
+                    # PreparingDownloads has a valid link that can be used but data may not be immediately available
+                    # Call the download-retrieve method to get download that is available for immediate download
+                    if requestResults['preparingDownloads'] != None and len(requestResults['preparingDownloads']) > 0:
+                        payload = {'label' : label}
                         moreDownloadUrls = sendRequest(serviceUrl + "download-retrieve", payload, apiKey)
-                        for download in moreDownloadUrls['available']:                            
-                            if download['downloadId'] not in downloadIds and (str(download['downloadId']) in requestResults['newRecords'] or str(download['downloadId']) in requestResults['duplicateProducts']):
+                        
+                        downloadIds = []  
+                        
+                        for download in moreDownloadUrls['available']:
+                            if str(download['downloadId']) in requestResults['newRecords'] or str(download['downloadId']) in requestResults['duplicateProducts']:
                                 downloadIds.append(download['downloadId'])
-                                print("DOWNLOAD: " + download['url']) 
+                                print("DOWNLOAD: " + download['url'])
                             
-                else:
-                    # Get all available downloads
-                    for download in requestResults['availableDownloads']:
-                        # TODO :: Implement a downloading routine
-                        print("DOWNLOAD: " + download['url'])   
-                print("\nAll downloads are available to download.\n")
-        else:
-            print("Search found no results.\n")
+                        for download in moreDownloadUrls['requested']:
+                            if str(download['downloadId']) in requestResults['newRecords'] or str(download['downloadId']) in requestResults['duplicateProducts']:
+                                downloadIds.append(download['downloadId'])
+                                print("DOWNLOAD: " + download['url'])
+                         
+                        # Didn't get all of the reuested downloads, call the download-retrieve method again probably after 30 seconds
+                        while len(downloadIds) < (requestedDownloadsCount - len(requestResults['failed'])): 
+                            preparingDownloads = requestedDownloadsCount - len(downloadIds) - len(requestResults['failed'])
+                            print("\n", preparingDownloads, "downloads are not available. Waiting for 30 seconds.\n")
+                            time.sleep(30)
+                            print("Trying to retrieve data\n")
+                            moreDownloadUrls = sendRequest(serviceUrl + "download-retrieve", payload, apiKey)
+                            for download in moreDownloadUrls['available']:                            
+                                if download['downloadId'] not in downloadIds and (str(download['downloadId']) in requestResults['newRecords'] or str(download['downloadId']) in requestResults['duplicateProducts']):
+                                    downloadIds.append(download['downloadId'])
+                                    print("DOWNLOAD: " + download['url']) 
+                                
+                    else:
+                        # Get all available downloads
+                        for download in requestResults['availableDownloads']:
+                            # TODO :: Implement a downloading routine
+                            print("DOWNLOAD: " + download['url'])   
+                    print("\nAll downloads are available to download.\n")
+            else:
+                print("Search found no results.\n")
                 
     # Logout so the API Key cannot be used anymore
     endpoint = "logout"  
