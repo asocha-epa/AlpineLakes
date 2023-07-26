@@ -90,13 +90,14 @@ if __name__ == '__main__':
     
     print("API Key: " + apiKey + "\n")
     
-    datasetName = "gls_all"
+    datasetName = "ard_tile"   #analysis ready data tiles
     
+    #use bbox from lake for spatial search
     spatialFilter =  {'filterType' : "mbr",
-                      'lowerLeft' : {'latitude' : 30, 'longitude' : -120},
-                      'upperRight' : { 'latitude' : 40, 'longitude' : -140}}
+                      'lowerLeft' : {'latitude' : miny, 'longitude' : minx},
+                      'upperRight' : { 'latitude' : maxy, 'longitude' : maxx}}
                      
-    temporalFilter = {'start' : '2000-12-10', 'end' : '2005-12-10'}
+    temporalFilter = {'start' : '1982-01-10', 'end' : '2022-12-10'}
     
     payload = {'datasetName' : datasetName,
                                'spatialFilter' : spatialFilter,
