@@ -10,6 +10,7 @@ Working to make additional scripts into functions and modules that can be import
 import os
 import tkinter as tk
 from tkinter.filedialog import askdirectory
+import rasterio as rio
 
 #get rid of root window
 root = tk.Tk()
@@ -35,3 +36,11 @@ for folder in os.listdir(wd):
                         QA_band = file
                     if file.endswith('ST_B10.TIF') or file.endswith('ST_B6.TIF'):
                         ST_band = file
+                    
+                    #read in raster bands as arrays
+                    with rio.open(ST_band) as src:
+                        surfTemp = src.read()
+                        profile = src.profile
+        
+                    with rio.open(QA_band) as src:
+                        QA = src.read()
