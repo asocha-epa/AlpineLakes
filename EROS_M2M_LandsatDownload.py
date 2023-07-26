@@ -23,6 +23,9 @@ import requests
 import sys
 import time
 import geopandas as gpd
+import os
+from urllib.parse import urlparse
+import tarfile
 
 wd = r'D:\AlpineLakes\LandsatARD'
 #wd= r'C:\Users\asocha\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\LandsatData' #this one is for laptop
