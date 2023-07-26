@@ -23,10 +23,19 @@ import requests
 import sys
 import time
 import argparse
+import geopandas as gpd
 
 wd = r'D:\AlpineLakes\LandsatARD'
 #wd= r'C:\Users\asocha\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\LandsatData' #this one is for laptop
 os.chdir(wd)
+
+#read in lake shapefile, convert to wgs84, and get bounding box values for running search
+shp = gpd.read_file(r'C:\Users\asocha\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\Tahoe_Soils_and_Hydro_Data\Tahoe_Soils_and_Hydro_Data.shp')
+shp_wgs84 = shp.to_crs(epsg = 4326)
+minx = round(shp_wgs84.total_bounds[0], 4)
+miny = round(shp_wgs84.total_bounds[1], 4)
+maxx =round(shp_wgs84.total_bounds[2], 4)
+maxy = round(shp_wgs84.total_bounds[3], 4)
 
 # send http request
 def sendRequest(url, data, apiKey = None):  
