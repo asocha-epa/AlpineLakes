@@ -111,15 +111,15 @@ if __name__ == '__main__':
     # download datasets
     for dataset in datasets:
         
-        acquisitionFilter = {"end": "2005-12-10",
-                             "start": "2000-12-10" }        
+        acquisitionFilter = {"end": f"{i}-07-31",
+                                 "start": f"{i}-07-01" }        
             
-        payload = {'datasetName' : dataset['datasetAlias'], 
-                                 'maxResults' : 2,
-                                 'startingNumber' : 1, 
-                                 'sceneFilter' : {
-                                                  'spatialFilter' : spatialFilter,
-                                                  'acquisitionFilter' : acquisitionFilter}}
+            payload = {'datasetName' : dataset['datasetAlias'], 
+                                    # 'maxResults' : 2,
+                                    # 'startingNumber' : 1, 
+                                     'sceneFilter' : { 'cloudCoverFilter' : {"min": 0, "max": 90},
+                                                      'spatialFilter' : spatialFilter,
+                                                      'acquisitionFilter' : acquisitionFilter}}
         
         # Now I need to run a scene search to find data to download
         print("Searching scenes...\n\n")   
