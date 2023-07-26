@@ -6,7 +6,6 @@ Created on Wed Jul 26 09:07:35 2023
 
 Building on a sample script provided by the USGS for downloading data from their M2M API to download landsat ard surface temperature data
 """
-
 # =============================================================================
 #  USGS/EROS Inventory Service Example
 #  Python - JSON API
@@ -24,6 +23,10 @@ import requests
 import sys
 import time
 import argparse
+
+wd = r'D:\AlpineLakes\LandsatARD'
+#wd= r'C:\Users\asocha\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\LandsatData' #this one is for laptop
+os.chdir(wd)
 
 # send http request
 def sendRequest(url, data, apiKey = None):  
