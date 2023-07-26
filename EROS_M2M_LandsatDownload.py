@@ -259,3 +259,14 @@ for root, dirs, files in os.walk(wd):
              except:
                 failed_unzip.append(sensor)
                 pass
+            
+if len(failed_unzip) > 0:
+    url = 'https://landsatlook.usgs.gov/gen-bundle?landsat_product_id='
+    for file in failed_unzip:
+        name = file.split('.')[0]
+        year = name.split('_')[3][:4]
+        os.chdir(os.path.join(wd, year))
+        fullURL = url + str(name) 
+        r = requests.get(url)
+        with open(file, 'wb') as f:
+            f.write(r.content)
