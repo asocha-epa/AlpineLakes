@@ -111,16 +111,6 @@ if __name__ == '__main__':
     # download datasets
     for dataset in datasets:
         
-        # Because I've ran this before I know that I want GLS_ALL, I don't want to download anything I don't
-        # want so we will skip any other datasets that might be found, logging it incase I want to look into
-        # downloading that data in the future.
-        if dataset['datasetAlias'] != datasetName:
-            print("Found dataset " + dataset['collectionName'] + " but skipping it.\n")
-            continue
-            
-        # I don't want to limit my results, but using the dataset-filters request, you can
-        # find additional filters
-        
         acquisitionFilter = {"end": "2005-12-10",
                              "start": "2000-12-10" }        
             
