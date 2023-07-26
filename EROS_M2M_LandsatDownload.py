@@ -22,7 +22,6 @@ import json
 import requests
 import sys
 import time
-import argparse
 import geopandas as gpd
 
 wd = r'D:\AlpineLakes\LandsatARD'
@@ -75,29 +74,19 @@ def sendRequest(url, data, apiKey = None):
 
 
 if __name__ == '__main__': 
-    #NOTE :: Passing credentials over a command line arguement is not considered secure
-    #        and is used only for the purpose of being example - credential parameters
-    #        should be gathered in a more secure way for production usage
-    #Define the command line arguements
     
-    # user input    
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-u', '--username', required=True, help='Username')
-    parser.add_argument('-p', '--password', required=True, help='Password')
-    
-    args = parser.parse_args()
-    
-    username = args.username
-    password = args.password     
+    # **CHANGED HERE use token instead of password and got rid of the arguments for now 
+    username = 'asocha'
+    token = 'MDEmWzt6m!qDLb45A_8K9e3XLYSU8I38fXf1ll7cbxiXovf5MUKzVZoltJ5WXV!4'     
 
     print("\nRunning Scripts...\n")
     
     serviceUrl = "https://m2m.cr.usgs.gov/api/api/json/stable/"
     
     # login
-    payload = {'username' : username, 'password' : password}
-    
-    apiKey = sendRequest(serviceUrl + "login", payload)
+    payload = {'username' : username, 'token' : token}
+   
+    apiKey = sendRequest(serviceUrl + "login-token", payload)
     
     print("API Key: " + apiKey + "\n")
     
