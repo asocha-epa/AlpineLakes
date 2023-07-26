@@ -191,8 +191,43 @@ if __name__ == '__main__':
                     else:
                         # Get all available downloads
                         for download in requestResults['availableDownloads']:
-                            # TODO :: Implement a downloading routine
-                            print("DOWNLOAD: " + download['url'])   
+                           #create list to keep on urls that fail
+                            failedDownloads = []
+                            url = download['url']
+                            #parse the url into separate pieces to pull information from
+                            parse = urlparse(url)
+                            #get the scene name
+                            name = parse[4].split('&')[0].split('=')[1]
+                            #split the scene name into parts
+                            nameSplit = name.split('_')
+                            #get the date from the name to filter by month (the fourth item in the list from splitting the name)
+                            #check list length bc there are some with just an 'frbj' in them
+                            if len(nameSplit) > 4:
+                                # date = nameSplit[3]
+                                # format = '%Y%m%d'
+                                # dateFormat = datetime.strptime(date, format)
+                                # month = dateFormat.month
+                                #only get surface temperature values from desired months
+                                if nameSplit[-1] == 'ST': #and month == 7:
+                                    file = name + '.tar'  
+                                    print(file)
+                                    #check to see if the file is already downloaded before downloading
+                                    yearFolder = os.path.join(wd, str(i))
+                                    if not os.path.exists(yearFolder):
+                                        os.mkdir(yearFolder)
+                                    os.chdir(yearFolder)
+                                    if not os.path.exists(os.path.join(yearFolder, file)):
+                                        try:
+                                            print(f'downloading {url}\n to {yearFolder}\n')
+                                            #send request for url to get content 
+                                            r = requests.get(url)
+                                            with open(file, 'wb') as f:
+                                                f.write(r.content)
+                                        except:
+                                            print("download failed")
+                                            failedDownloads.append(url)
+                                            pass
+                                        
                     print("\nAll downloads are available to download.\n")
             else:
                 print("Search found no results.\n")
