@@ -238,3 +238,24 @@ if __name__ == '__main__':
         print("Logged Out\n\n")
     else:
         print("Logout Failed\n\n")
+        
+#%%#        
+#Added to unzip to downloaded zip files into folders of the same name
+failed_unzip = []
+for root, dirs, files in os.walk(wd):
+    for file in files:
+        if file.endswith('.tar'):
+             sensor = file.split('.')[0]
+             sensorFolder = os.path.join(root, sensor)
+             if not os.path.exists(sensorFolder):
+                 os.mkdir(sensorFolder)
+             try:
+                 file = tarfile.open(os.path.join(root, file))
+                 # extracting file
+                
+                 file.extractall(sensorFolder)
+                  
+                 file.close()
+             except:
+                failed_unzip.append(sensor)
+                pass
