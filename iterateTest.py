@@ -15,6 +15,7 @@ import rasterio as rio
 import geopandas as gpd
 from rasterstats import zonal_stats
 import numpy as np
+import pandas as pd
 import ClipToLake2
 import landsatQAmask
 
@@ -25,6 +26,16 @@ root.withdraw()
 #create function to apply scale factor and convert to degrees celcius
 def tempToCelcius(val):
     return (val) * 0.00341802 + 149 - 273.15
+
+#create empty lists to store values for creating a df
+date = []
+meanTemp_C = []
+majTemp_C = []
+ninetyPercentTemp_C = []
+seventyPercentTemp_C = []
+maxTemp_C = []
+minTemp_C = []
+year = []
 
 # Reading in the input shapefile.
 input_df = gpd.read_file(r'C:\Users\asocha\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\Tahoe_Soils_and_Hydro_Data\Tahoe_Soils_and_Hydro_Data.shp')
@@ -63,7 +74,6 @@ for folder in os.listdir(wd):
                 for file in os.listdir('.'):
                     if file.endswith('QA_PIXEL.TIF'):
                         QA_band = file
-                        QA_name = file[:-4]
                     if file.endswith('ST_B10.TIF') or file.endswith('ST_B6.TIF'):
                         ST_band = file
                         ST_name = file[:-4]
@@ -124,7 +134,29 @@ for folder in os.listdir(wd):
                                 out_file = ST_name + '_final_degCelcius.tif'
                                 with rio.open(out_file, 'w', decimal_precision=4,  **ST_clip_meta) as dst:
                                     dst.write(temp_cel)
-                                sys.exit()
+                                
+                                #run zonal statistics on the ST raster within the lake boundary 
+                                stats = zonal_stats(buff_df, out_file, affine = affine, nodata = nodata, stats = 'max min mean majority percentile_90 percentile_75')[0]
+
+                                #get values and store them in the empty lists
+                                nameSplit = ST_name.split('_')
+                                fileDate = nameSplit[3]
+                                date.append(fileDate)
+                                year.append(folder)
+
+                                majTemp_C.append(stats['majority'])
+                                ninetyPercentTemp_C.append(stats['percentile_90'])
+                                seventyPercentTemp_C.append(stats['percentile_75'])
+                                meanTemp_C.append(stats['mean'])
+                                maxTemp_C.append(stats['max'])
+                                minTemp_C.append(stats['min'])
+
+#create dataframe with dates and the statistics for each date
+df = pd.DataFrame(zip(date, year, minTemp_C, maxTemp_C, meanTemp_C, majTemp_C, seventyPercentTemp_C, ninetyPercentTemp_C),
+                  columns = ['date', 'year', 'minTemp_C', 'maxTemp_C', 'meanTemp_C', 'majTemp_C', '75th%Temp_C', '90th%_C'])
+
+print(df.head())
+                                
                         
                    
                
