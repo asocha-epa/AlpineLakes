@@ -23,6 +23,9 @@ import landsatQAmask
 root = tk.Tk()
 root.withdraw()
 
+#make sure window comes to front
+root.attributes('-topmost', 1)
+
 #create function to apply scale factor and convert to degrees celcius
 def tempToCelcius(val):
     return (val) * 0.00341802 + 149 - 273.15
@@ -135,6 +138,7 @@ for folder in os.listdir(wd):
                                     dst.write(temp_cel)
                                 
                                 #run zonal statistics on the ST raster within the lake boundary 
+                                print(f'Running zonal stats on {file}\n')
                                 stats = zonal_stats(buff_df, out_file, affine = affine, nodata = nodata, stats = 'max min mean majority percentile_90 percentile_75')[0]
 
                                 #get values and store them in the empty lists
