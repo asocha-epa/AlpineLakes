@@ -103,7 +103,6 @@ for folder in os.listdir(wd):
                            
                             QA_clip = ClipToLake2.clipRaster(QA_pixel, coords)
                             QA_clip_array = QA_clip[0]
-                            QA_clip_meta = QA_clip[1]
                             
                             ST_clip = ClipToLake2.clipRaster(surf_temp, coords)
                             ST_clip_array = ST_clip[0]
