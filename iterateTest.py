@@ -7,6 +7,7 @@ Created on Wed Jul 26 13:27:16 2023
 Initial testing for combining lake temperature data processing in one script and iterating the process for all files downloaded
 Working to make additional scripts into functions and modules that can be imported for a cleaner script
 """
+import sys
 import os
 import tkinter as tk
 from tkinter.filedialog import askdirectory
@@ -14,7 +15,7 @@ import rasterio as rio
 import geopandas as gpd
 from rasterstats import zonal_stats
 import ClipToLake2
-import sys
+import landsatQAmask
 
 #get rid of root window
 root = tk.Tk()
@@ -93,6 +94,9 @@ for folder in os.listdir(wd):
                             ST_clip_array = QA_clip[0]
                             ST_clip_meta = QA_clip[1]
                             
+                            #mask out clouds using QA band with functions from landsatQAmask script
+                            ST_masked = landsatQAmask.mask_clouds(QA_clip_array, ST_clip_array)
+                          
                             sys.exit()
                         
                    
