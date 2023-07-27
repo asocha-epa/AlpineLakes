@@ -14,6 +14,7 @@ import rasterio as rio
 import geopandas as gpd
 from rasterstats import zonal_stats
 import ClipToLake2
+import sys
 
 #get rid of root window
 root = tk.Tk()
@@ -73,15 +74,14 @@ for folder in os.listdir(wd):
                         
                         #project lake df to the same crs
                         buff_df = buff_df.to_crs(surf_temp.crs)
-#%% 
+                        
                         #check if there is overlap with the rasters and the lake boundary
                         #run zonal stats to get the sum. the output is a dictionary in a list, so get that part by itself
                         #if sum is none, the areas don't intersect and the raster can be ignored
                         stats = zonal_stats(buff_df, ST_array, affine = affine, nodata = nodata, stats = 'sum')[0]
-                        if stats is None:
+                        if stats['sum'] is None:
                             continue
-                        else:
-#%%                       
+                        else:           
                             #run functions from ClipToLake2 script, **clipRaster output is a tuple with the array and the meta
                             coords = ClipToLake2.getFeatures(buff_df)
                            
@@ -92,12 +92,14 @@ for folder in os.listdir(wd):
                             ST_clip = ClipToLake2.clipRaster(surf_temp, coords)
                             ST_clip_array = QA_clip[0]
                             ST_clip_meta = QA_clip[1]
+                            
+                            sys.exit()
                         
                    
                
            
-        break
-    break
+        
+
                        
             
             
