@@ -32,6 +32,8 @@ if input_crs != 'epsg:9822':
 input_df['buffer'] = input_df.buffer(-100)
 buff_df = input_df.drop(columns=['geometry']).set_geometry('buffer')
 
+coords = ClipToLake2.getFeatures(buff_df)
+
 #%%
 #ask user to select folder for directory
 print('select folder', "\n")
@@ -58,16 +60,24 @@ for folder in os.listdir(wd):
                         #read in raster bands as arrays
                         with rio.open(ST_band) as src:
                             surfTemp = src
+                            ST_array = src.read()
                             profile = src.profile
             
                         with rio.open(QA_band) as src:
                             QA = src
+                            
                         #apply functions from ClipToLake2 script, reminder clipRaster returns a tuple
-                        coords = ClipToLake2.getFeatures(buff_df)
-                        QA_clip = ClipToLake2.clipRaster(QA, coords)
-                        ST_clip = ClipToLake2.clipRaster(surfTemp, coords)
+                        try:
+                            QA_clip = ClipToLake2.clipRaster(QA, coords)
+                            ST_clip = ClipToLake2.clipRaster(surfTemp, coords)
+                        except Exception as e:
+                            print(e)
+                            print(f"Skipping {QA_band}")
+                            continue
+                            
+                            
                         
-                        print(QA_clip[0])
-            break
+                        
+            
         break
     break
