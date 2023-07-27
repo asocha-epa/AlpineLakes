@@ -14,6 +14,7 @@ from tkinter.filedialog import askdirectory
 import rasterio as rio
 import geopandas as gpd
 from rasterstats import zonal_stats
+import numpy as np
 import ClipToLake2
 import landsatQAmask
 
@@ -96,7 +97,17 @@ for folder in os.listdir(wd):
                             
                             #mask out clouds using QA band with functions from landsatQAmask script
                             ST_masked = landsatQAmask.mask_clouds(QA_clip_array, ST_clip_array)
-                          
+                              
+                            #check how many pixels were masked, if below threshold, don't use
+                            #get the number of non zero pixels for each band
+                            total_pix = np.count_nonzero(ST_clip_array)
+                            nonmasked_pix = np.count_nonzero(ST_masked)
+                            percent = nonmasked_pix / total_pix
+                            
+                            if percent < 0: #need to establish a threshold here
+                                continue
+                            else:
+                                
                             sys.exit()
                         
                    
