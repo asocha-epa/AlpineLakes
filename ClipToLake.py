@@ -8,6 +8,8 @@ For analyzing surface temperature of lakes within a buffered region that delinea
 clipping the LST raster to the lake
 """
 import geopandas as gpd
+import rasterio as rio
+from rasterio.mask import mask
 
 # Reading in the input shapefile.
 input_df = gpd.read_file(r'C:\Users\asocha\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\Tahoe_Soils_and_Hydro_Data\Tahoe_Soils_and_Hydro_Data.shp')
