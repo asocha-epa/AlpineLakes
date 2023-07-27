@@ -34,7 +34,7 @@ buff_df = buff_df.to_crs(input_crs)
 
 #%%
 #read in the ST band and get its crs
-src =  rio.open(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\LandsatData\LC08_CU_003008_20210618_20210702_02_ST_B10.TIF')
+src =  rio.open(r'D:\AlpineLakes\LandsatARD\1985\LT05_CU_003008_19850717_20210422_02_ST/LT05_CU_003008_19850717_20210422_02_ST_B6.TIF')
 src_crs = src.crs
 
 #project lake df to the same crs
