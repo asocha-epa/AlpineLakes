@@ -111,15 +111,18 @@ for folder in os.listdir(wd):
                             if percent < 0: #need to establish a threshold here
                                 continue
                             else:
-                                apply scaling and conversion function
-                                temp_cel = tempToCelcius(temp)
+                                #set zeros as no data, need to convert to float array
+                                ST_float = ST_masked.astype('float')
+                                ST_float[ST_float == 0] = 'nan'
+                                #apply scaling and conversion function
+                                temp_cel = tempToCelcius(ST_float)
 
                                 #change the raster dytpe to float to conserve decimals
-                                profile.update(dtype=rio.float32)
+                                ST_clip_meta.update(dtype=rio.float32)
                                 
                                 #write out final raster
                                 out_file = ST_name + '_final_degCelcius.tif'
-                                with rio.open(out_file, 'w', decimal_precision=4,  **profile) as dst:
+                                with rio.open(out_file, 'w', decimal_precision=4,  **ST_clip_meta) as dst:
                                     dst.write(temp_cel)
                                 sys.exit()
                         
