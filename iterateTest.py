@@ -12,12 +12,12 @@ import tkinter as tk
 from tkinter.filedialog import askdirectory
 import rasterio as rio
 import geopandas as gpd
+from rasterstats import zonal_stats
 import ClipToLake2
 
 #get rid of root window
 root = tk.Tk()
 root.withdraw()
-
 
 # Reading in the input shapefile.
 input_df = gpd.read_file(r'C:\Users\asocha\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\Tahoe_Soils_and_Hydro_Data\Tahoe_Soils_and_Hydro_Data.shp')
@@ -62,28 +62,42 @@ for folder in os.listdir(wd):
                         ST_name = file[:-4]
                         
                         #read in raster bands
-                        surfTemp = rio.open(ST_band)
-                        ST_array = surfTemp.read()
-                        profile = surfTemp.profile
+                        surf_temp = rio.open(ST_band)
+                        ST_array = surf_temp.read(1)
+                        profile = surf_temp.profile
+                        affine = surf_temp.transform
+                        nodata = surf_temp.nodata
                         
-                        QA = rio.open(QA_band)
-                        QA_array = QA.read()
+                        QA_pixel = rio.open(QA_band)
+                        QA_array = QA_pixel.read(1)
                         
                         #project lake df to the same crs
-                        buff_df = buff_df.to_crs(surfTemp.crs)
+                        buff_df = buff_df.to_crs(surf_temp.crs)
+#%% 
+                        #check if there is overlap with the rasters and the lake boundary
+                        #run zonal stats to get the sum. the output is a dictionary in a list, so get that part by itself
+                        #if sum is none, the areas don't intersect and the raster can be ignored
+                        stats = zonal_stats(buff_df, ST_array, affine = affine, nodata = nodata, stats = 'sum')[0]
+                        if stats is None:
+                            continue
+                        else:
+#%%                       
+                            #run functions from ClipToLake2 script, **clipRaster output is a tuple with the array and the meta
+                            coords = ClipToLake2.getFeatures(buff_df)
+                           
+                            QA_clip = ClipToLake2.clipRaster(QA_pixel, coords)
+                            QA_clip_array = QA_clip[0]
+                            QA_clip_meta = QA_clip[1]
+                            
+                            ST_clip = ClipToLake2.clipRaster(surf_temp, coords)
+                            ST_clip_array = QA_clip[0]
+                            ST_clip_meta = QA_clip[1]
                         
-                        #run functions from ClipToLake2 script, **clipRaster output is a tuple with the array and the meta
-                        coords = ClipToLake2.getFeatures(buff_df)
-                       
-                        QA_clip = ClipToLake2.clipRaster(QA, coords)
-                        QA_clip_array = QA_clip[0]
-                        QA_clip_meta = QA_clip[1]
-                        
-                        ST_clip = ClipToLake2.clipRaster(surfTemp, coords)
-                        ST_clip_array = QA_clip[0]
-                        ST_clip_meta = QA_clip[1]
-                        
-                        
+                   
+               
+           
+        break
+    break
                        
             
             
