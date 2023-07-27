@@ -24,13 +24,12 @@ input_df = gpd.read_file(r'C:\Users\asocha\OneDrive - Environmental Protection A
 input_crs = input_df.crs
 
 #reproject if necessary to match rasters which are Albers Equal Area
-if inpus_crs != 'epsg:9822':
+if input_crs != 'epsg:9822':
     input_df = input_df.to_crs('epsg:9822')
 
 # Create buffer and set as new geometry
 input_df['buffer'] = input_df.buffer(-100)
 buff_df = input_df.drop(columns=['geometry']).set_geometry('buffer')
-
 
 #%%
 #ask user to select folder for directory
@@ -47,13 +46,14 @@ for folder in os.listdir(wd):
             if subDir.endswith('.tar'):
                 continue
             else:
-                #get the QA and the surface temperature bands
+                #get the QA and the surface temperature bands, save name for exporting files
                 for file in os.listdir('.'):
                     if file.endswith('QA_PIXEL.TIF'):
                         QA_band = file
+                        QA_name = file[:-4]
                     if file.endswith('ST_B10.TIF') or file.endswith('ST_B6.TIF'):
                         ST_band = file
-                    
+                        ST_name = file[:-4]
                         #read in raster bands as arrays
                         with rio.open(ST_band) as src:
                             surfTemp = src.read()
