@@ -12,6 +12,7 @@ import tkinter as tk
 from tkinter.filedialog import askdirectory
 import rasterio as rio
 import geopandas as gpd
+import ClipToLake2
 
 #get rid of root window
 root = tk.Tk()
@@ -56,13 +57,17 @@ for folder in os.listdir(wd):
                         ST_name = file[:-4]
                         #read in raster bands as arrays
                         with rio.open(ST_band) as src:
-                            surfTemp = src.read()
+                            surfTemp = src
                             profile = src.profile
             
                         with rio.open(QA_band) as src:
-                            QA = src.read()
+                            QA = src
+                        #apply functions from ClipToLake2 script, reminder clipRaster returns a tuple
+                        coords = ClipToLake2.getFeatures(buff_df)
+                        QA_clip = ClipToLake2.clipRaster(QA, coords)
+                        ST_clip = ClipToLake2.clipRaster(surfTemp, coords)
                         
-                        
+                        print(QA_clip[0])
             break
         break
     break
