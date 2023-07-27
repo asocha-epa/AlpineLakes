@@ -25,7 +25,6 @@ root.withdraw()
 
 #make sure window comes to front
 root.attributes('-topmost', 1)
-
 #create function to apply scale factor and convert to degrees celcius
 def tempToCelcius(val):
     return (val) * 0.00341802 + 149 - 273.15
@@ -159,7 +158,8 @@ df = pd.DataFrame(zip(date, year, minTemp_C, maxTemp_C, meanTemp_C, majTemp_C, s
                   columns = ['date', 'year', 'minTemp_C', 'maxTemp_C', 'meanTemp_C', 'majTemp_C', '75th%Temp_C', '90th%_C'])
 
 print(df.head())
-                                
+#%%
+df.to_csv(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\TahoeTestRun.csv')                          
                         
                    
                
