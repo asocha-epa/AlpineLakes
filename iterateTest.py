@@ -22,6 +22,10 @@ import landsatQAmask
 root = tk.Tk()
 root.withdraw()
 
+#create function to apply scale factor and convert to degrees celcius
+def tempToCelcius(val):
+    return (val) * 0.00341802 + 149 - 273.15
+
 # Reading in the input shapefile.
 input_df = gpd.read_file(r'C:\Users\asocha\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\Tahoe_Soils_and_Hydro_Data\Tahoe_Soils_and_Hydro_Data.shp')
 
@@ -92,8 +96,8 @@ for folder in os.listdir(wd):
                             QA_clip_meta = QA_clip[1]
                             
                             ST_clip = ClipToLake2.clipRaster(surf_temp, coords)
-                            ST_clip_array = QA_clip[0]
-                            ST_clip_meta = QA_clip[1]
+                            ST_clip_array = ST_clip[0]
+                            ST_clip_meta = ST_clip[1]
                             
                             #mask out clouds using QA band with functions from landsatQAmask script
                             ST_masked = landsatQAmask.mask_clouds(QA_clip_array, ST_clip_array)
@@ -107,8 +111,17 @@ for folder in os.listdir(wd):
                             if percent < 0: #need to establish a threshold here
                                 continue
                             else:
+                                apply scaling and conversion function
+                                temp_cel = tempToCelcius(temp)
+
+                                #change the raster dytpe to float to conserve decimals
+                                profile.update(dtype=rio.float32)
                                 
-                            sys.exit()
+                                #write out final raster
+                                out_file = ST_name + '_final_degCelcius.tif'
+                                with rio.open(out_file, 'w', decimal_precision=4,  **profile) as dst:
+                                    dst.write(temp_cel)
+                                sys.exit()
                         
                    
                
