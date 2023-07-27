@@ -18,21 +18,24 @@ import ClipToLake2
 root = tk.Tk()
 root.withdraw()
 
-#read in shapefile - will need to update later for getting geometry from gpkg
+
+# Reading in the input shapefile.
 input_df = gpd.read_file(r'C:\Users\asocha\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\Tahoe_Soils_and_Hydro_Data\Tahoe_Soils_and_Hydro_Data.shp')
 
 # Reading the input CRS. 
 input_crs = input_df.crs
 
-#reproject if necessary to match rasters which are Albers Equal Area
-if input_crs != 'epsg:9822':
-    input_df = input_df.to_crs('epsg:9822')
+# Reprojecting the data. If needed, substitute "WXYZ" with relevant EPSG code
+#input_df = input_df.to_crs('epsg:WXYZ')
 
-# Create buffer and set as new geometry
+# Creating the variable-sized buffer
 input_df['buffer'] = input_df.buffer(-100)
+
+# Dropping the original geometry and setting the new geometry
 buff_df = input_df.drop(columns=['geometry']).set_geometry('buffer')
 
-coords = ClipToLake2.getFeatures(buff_df)
+# Reprojecting the buffered data back to the CRS used in the original input shapefile
+buff_df = buff_df.to_crs(input_crs)
 
 #%%
 #ask user to select folder for directory
@@ -57,27 +60,32 @@ for folder in os.listdir(wd):
                     if file.endswith('ST_B10.TIF') or file.endswith('ST_B6.TIF'):
                         ST_band = file
                         ST_name = file[:-4]
-                        #read in raster bands as arrays
-                        with rio.open(ST_band) as src:
-                            surfTemp = src
-                            ST_array = src.read()
-                            profile = src.profile
-            
-                        with rio.open(QA_band) as src:
-                            QA = src
-                            
-                        #apply functions from ClipToLake2 script, reminder clipRaster returns a tuple
-                        try:
-                            QA_clip = ClipToLake2.clipRaster(QA, coords)
-                            ST_clip = ClipToLake2.clipRaster(surfTemp, coords)
-                        except Exception as e:
-                            print(e)
-                            print(f"Skipping {QA_band}")
-                            continue
-                            
-                            
+                        
+                        #read in raster bands
+                        surfTemp = rio.open(ST_band)
+                        ST_array = surfTemp.read()
+                        profile = surfTemp.profile
+                        
+                        QA = rio.open(QA_band)
+                        QA_array = QA.read()
+                        
+                        #project lake df to the same crs
+                        buff_df = buff_df.to_crs(surfTemp.crs)
+                        
+                        #run functions from ClipToLake2 script, **clipRaster output is a tuple with the array and the meta
+                        coords = ClipToLake2.getFeatures(buff_df)
+                       
+                        QA_clip = ClipToLake2.clipRaster(QA, coords)
+                        QA_clip_array = QA_clip[0]
+                        QA_clip_meta = QA_clip[1]
+                        
+                        ST_clip = ClipToLake2.clipRaster(surfTemp, coords)
+                        ST_clip_array = QA_clip[0]
+                        ST_clip_meta = QA_clip[1]
                         
                         
+                       
             
-        break
-    break
+            
+        
+   
