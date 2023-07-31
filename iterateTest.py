@@ -155,7 +155,7 @@ for folder in os.listdir(wd):
 
 #create dataframe with dates and the statistics for each date
 df = pd.DataFrame(zip(date, year, minTemp_C, maxTemp_C, meanTemp_C, majTemp_C, seventyPercentTemp_C, ninetyPercentTemp_C),
-                  columns = ['date', 'year', 'minTemp_C', 'maxTemp_C', 'meanTemp_C', 'majTemp_C', '75th%Temp_C', '90th%_C'])
+                  columns = ['date', 'year', 'minTemp_C', 'maxTemp_C', 'meanTemp_C', 'majTemp_C', '75th%Temp_C', '90th%Temp_C'])
 
 print(df.head())
 #%%
