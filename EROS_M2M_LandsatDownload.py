@@ -44,10 +44,11 @@ wd = askdirectory(title = 'Select Directory Folder')
 os.chdir(wd)
 
 #get lake boundary file
+print('select lake boundary file', "\n")
 lakes = askopenfilename(title = 'Select Lake Boundary File')
 
 #%%
-#read in lake shapefile, convert to wgs84, and get bounding box values for running search
+#read in lake boundary file, convert to wgs84, and get bounding box values for running search
 shp = gpd.read_file(lakes)
 shp_wgs84 = shp.to_crs(epsg = 4326)
 minx = round(shp_wgs84.total_bounds[0], 4)
