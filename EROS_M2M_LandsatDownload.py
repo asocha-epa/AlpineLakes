@@ -26,13 +26,29 @@ import geopandas as gpd
 import os
 from urllib.parse import urlparse
 import tarfile
+import tkinter as tk
+from tkinter.filedialog import askdirectory, askopenfilename
 
-wd = r'D:\AlpineLakes\LandsatARD'
-#wd= r'C:\Users\asocha\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\LandsatData' #this one is for laptop
+#get rid of root window
+root = tk.Tk()
+root.withdraw()
+
+#make sure window comes to front
+root.attributes('-topmost', 1)
+
+#get working directory path
+print('select download destination folder', "\n")
+wd = askdirectory(title = 'Select Directory Folder')
+
+#set working directory
 os.chdir(wd)
 
+#get lake boundary file
+lakes = askopenfilename(title = 'Select Lake Boundary File')
+
+#%%
 #read in lake shapefile, convert to wgs84, and get bounding box values for running search
-shp = gpd.read_file(r'C:\Users\asocha\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\Tahoe_Soils_and_Hydro_Data\Tahoe_Soils_and_Hydro_Data.shp')
+shp = gpd.read_file(lakes)
 shp_wgs84 = shp.to_crs(epsg = 4326)
 minx = round(shp_wgs84.total_bounds[0], 4)
 miny = round(shp_wgs84.total_bounds[1], 4)
@@ -117,12 +133,12 @@ if __name__ == '__main__':
             acquisitionFilter = {"end": f"{i}-07-31",
                                      "start": f"{i}-07-01" }        
                 
-                payload = {'datasetName' : dataset['datasetAlias'], 
-                                        # 'maxResults' : 2,
-                                        # 'startingNumber' : 1, 
-                                         'sceneFilter' : { 'cloudCoverFilter' : {"min": 0, "max": 90},
-                                                          'spatialFilter' : spatialFilter,
-                                                          'acquisitionFilter' : acquisitionFilter}}
+            payload = {'datasetName' : dataset['datasetAlias'], 
+                                    # 'maxResults' : 2,
+                                    # 'startingNumber' : 1, 
+                                     'sceneFilter' : { 'cloudCoverFilter' : {"min": 0, "max": 90},
+                                                      'spatialFilter' : spatialFilter,
+                                                      'acquisitionFilter' : acquisitionFilter}}
             
             # Now I need to run a scene search to find data to download
             print("Searching scenes...\n\n")   
