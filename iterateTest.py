@@ -10,7 +10,7 @@ Working to make additional scripts into functions and modules that can be import
 import sys
 import os
 import tkinter as tk
-from tkinter.filedialog import askdirectory
+from tkinter.filedialog import askdirectory, askopenfilename
 import rasterio as rio
 import geopandas as gpd
 from rasterstats import zonal_stats
@@ -39,8 +39,10 @@ maxTemp_C = []
 minTemp_C = []
 year = []
 
-# Reading in the input shapefile.
-input_df = gpd.read_file(r'C:\Users\asocha\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\Tahoe_Soils_and_Hydro_Data\Tahoe_Soils_and_Hydro_Data.shp')
+#get lake boundary file
+lakes = askopenfilename(title = 'Select Lake Boundary File')
+# Reading in the input file
+input_df = gpd.read_file(lakes)
 
 # Reading the input CRS. 
 input_crs = input_df.crs
