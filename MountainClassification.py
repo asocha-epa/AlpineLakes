@@ -11,6 +11,7 @@ from tkinter.filedialog import askdirectory, askopenfilename
 import geopandas as gpd
 import rasterio as rio
 from rasterstats import zonal_stats
+import pandas as pd
 import os
 
 #get rid of root window
@@ -49,7 +50,7 @@ buff_df = input_df
 buff_df.geometry = buff_df.geometry.buffer(buffer)
 
 #%%
-UNIQUE _ID =[]
+UNIQUE_ID =[]
 low_mtn = []
 high_mtn = []
 #iterate through buffered dataframe to get each lake and its boundary
@@ -77,6 +78,9 @@ for i in range(len(buff_df)):
 
     low_mtn.append(low_mtn_pix)
     high_mtn.append(high_mtn_pix)
+    
+out_df = pd.DataFrame(zip(UNIQUE_ID, low_mtn, high_mtn), columns = ['UNIQUE_ID', 'Low_Mtn_count', 'High_Mtn_count'])
+out_df.to_csv(f'NLA_integrated_sample_mtnlakes_{buffer}m.csv')
     
     
     
