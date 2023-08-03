@@ -49,12 +49,17 @@ buff_df = input_df
 buff_df.geometry = buff_df.geometry.buffer(buffer)
 
 #%%
+UNIQUE _ID =[]
+low_mtn = []
+high_mtn = []
 #iterate through buffered dataframe to get each lake and its boundary
 for i in range(len(buff_df)):
     ID = buff_df.loc[i, 'UNIQUE_ID']
+    UNIQUE_ID.append(ID)
     geom = buff_df.loc[i, 'geometry']
     
     #get total pixel count, need to specify affine and nodata to prevent errors and warnings
+    print(f'Getting pixel count for {ID}\n')
     tot_pix = zonal_stats(geom, landforms_arr, affine = affine, nodata = nodata)[0]['count']
     
     #get counts for each pixel value within the polygon
@@ -62,9 +67,17 @@ for i in range(len(buff_df)):
     
     if 8 in unique_counts:
         low_mtn_pix = unique_counts[8]
-    
-    elif 9 in unique_counts:
-        high_mtn_pix = unique_counts[9]
-        
     else:
-        continue
+        low_mtn_pix = 0
+    
+    if 9 in unique_counts:
+        high_mtn_pix = unique_counts[9]
+    else:
+        high_mtn_pix = 0
+
+    low_mtn.append(low_mtn_pix)
+    high_mtn.append(high_mtn_pix)
+    
+    
+    
+    
