@@ -2,7 +2,7 @@
 """
 Created on Wed Aug  2 14:37:38 2023
 
-Rewriting Amalia's mountain idenfication in python based on the USGS landforms categories
+Rewriting Amalia Handler's mountain idenfication in python based on the USGS landforms categories
 
 @author: ASOCHA
 """
@@ -21,21 +21,30 @@ root.attributes('-topmost', 1)
 
 #ask user to select folder for directory
 wd = askdirectory(title = 'Select Directory Folder')
-print('Setting working directory:', '\n', wd, '\n')
+print('Setting working directory:\n', wd, '\n')
 os.chdir(wd)
 
 #get lake boundary file
 lakes = askopenfilename(title = 'Select Lake Boundary File')
+print('Lake boundary file:\n', lakes, '\n')
+
 # Reading in the input file
 input_df = gpd.read_file(lakes)
 
 #get landforms file
 landforms_file = askopenfilename(title = 'Select Landforms File')
+
 #read raster
 landforms = rio.open(landforms_file)
 
-#set buffer
+#set buffer **make sure to check crs, for the AEA is used and its units are meters which is what we want
 buffer = 1000
 
-for i in input_df.index:
-    
+#copy df and buffer all geometries out to specified distance
+buff_df = input_df
+buff_df.geometry = buff_df.geometry.buffer(buffer)
+
+#%%
+for index, row in df.itterrows:
+    ID = row['UNIQUE_ID']
+    geom = row['geometry']
