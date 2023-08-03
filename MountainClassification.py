@@ -54,5 +54,17 @@ for i in range(len(buff_df)):
     ID = buff_df.loc[i, 'UNIQUE_ID']
     geom = buff_df.loc[i, 'geometry']
     
+    #get total pixel count, need to specify affine and nodata to prevent errors and warnings
+    tot_pix = zonal_stats(geom, landforms_arr, affine = affine, nodata = nodata)[0]['count']
     
-   
+    #get counts for each pixel value within the polygon
+    unique_counts = zonal_stats(geom, landforms_arr, affine = affine, nodata = nodata, categorical = True)[0]
+    
+    if 8 in unique_counts:
+        low_mtn_pix = unique_counts[8]
+    
+    elif 9 in unique_counts:
+        high_mtn_pix = unique_counts[9]
+        
+    else:
+        continue
