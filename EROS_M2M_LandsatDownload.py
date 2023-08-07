@@ -28,6 +28,7 @@ from urllib.parse import urlparse
 import tarfile
 import tkinter as tk
 from tkinter.filedialog import askdirectory, askopenfilename
+import time
 
 #get rid of root window
 root = tk.Tk()
@@ -46,6 +47,9 @@ os.chdir(wd)
 #get lake boundary file
 print('select lake boundary file', "\n")
 lakes = askopenfilename(title = 'Select Lake Boundary File')
+
+#get starting time to get run time
+st = time.time()
 
 #%%
 #read in lake boundary file, convert to wgs84, and get bounding box values for running search
@@ -131,8 +135,8 @@ if __name__ == '__main__':
     # download datasets
     for dataset in datasets:
         for i in range(1982,2023):
-            acquisitionFilter = {"end": f"{i}-07-31",
-                                     "start": f"{i}-07-01" }        
+            acquisitionFilter = {"end": f"{i}-09-31",
+                                     "start": f"{i}-06-01" }        
                 
             payload = {'datasetName' : dataset['datasetAlias'], 
                                     # 'maxResults' : 2,
@@ -290,3 +294,9 @@ if len(failed_unzip) > 0:
         r = requests.get(url)
         with open(file, 'wb') as f:
             f.write(r.content)
+
+#get run time
+et = time.time()
+res = et - st
+final_res = res / 60
+print('Execution time:', final_res, 'minutes')
