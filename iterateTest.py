@@ -18,6 +18,10 @@ import numpy as np
 import pandas as pd
 import ClipToLake2
 import landsatQAmask
+import time
+
+#get starting time to get run time
+st = time.time()
 
 #get rid of root window
 root = tk.Tk()
@@ -162,7 +166,12 @@ df = pd.DataFrame(zip(date, year, minTemp_C, maxTemp_C, meanTemp_C, majTemp_C, s
 print(df.head())
 #%%
 df.to_csv(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\TahoeTestRun.csv')                          
-                        
+
+#get run time
+et = time.time()
+res = et - st
+final_res = res / 60
+print('Execution time:', final_res, 'minutes')                       
                    
                
            
