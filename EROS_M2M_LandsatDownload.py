@@ -82,7 +82,6 @@ def sendRequest(url, data, apiKey = None):
           if output['errorCode'] == 'RATE_LIMIT_USER_DL':
               print('Waiting 15 minutes to retry download...')
               time.sleep(900)
-              continue
           else:
              sys.exit()
           sys.exit()
@@ -141,7 +140,7 @@ if __name__ == '__main__':
     
     # download datasets
     for dataset in datasets:
-        for i in range(1982,2023):
+        for i in range(2016,2023):
             acquisitionFilter = {"end": f"{i}-09-31",
                                      "start": f"{i}-06-01" }        
                 
