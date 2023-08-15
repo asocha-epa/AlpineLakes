@@ -78,6 +78,13 @@ def sendRequest(url, data, apiKey = None):
       output = json.loads(response.text)	
       if output['errorCode'] != None:
           print(output['errorCode'], "- ", output['errorMessage'])
+          #added to handle download request limit by waiting 15 min to continue
+          if output['errorCode'] == 'RATE_LIMIT_USER_DL':
+              print('Waiting 15 minutes to retry download...')
+              time.sleep(900)
+              continue
+          else:
+             sys.exit()
           sys.exit()
       if  httpStatusCode == 404:
           print("404 Not Found")
