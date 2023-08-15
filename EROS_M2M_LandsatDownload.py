@@ -29,6 +29,7 @@ import tarfile
 import tkinter as tk
 from tkinter.filedialog import askdirectory, askopenfilename
 import time
+import certifi
 
 #get rid of root window
 root = tk.Tk()
@@ -65,10 +66,11 @@ def sendRequest(url, data, apiKey = None):
     json_data = json.dumps(data)
     
     if apiKey == None:
-        response = requests.post(url, json_data)
+        #needed to add a server certificate verification bc randomly started not being able to verify it
+        response = requests.post(url, json_data, verify = certifi.where())
     else:
         headers = {'X-Auth-Token': apiKey}              
-        response = requests.post(url, json_data, headers = headers)    
+        response = requests.post(url, json_data, headers = headers, verify = certifi.where())    
     
     try:
       httpStatusCode = response.status_code 
@@ -140,7 +142,7 @@ if __name__ == '__main__':
     
     # download datasets
     for dataset in datasets:
-        for i in range(2016,2023):
+        for i in range(2010,2023):
             acquisitionFilter = {"end": f"{i}-09-31",
                                      "start": f"{i}-06-01" }        
                 
