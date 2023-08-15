@@ -287,6 +287,7 @@ for root, dirs, files in os.walk(wd):
                  file.extractall(sensorFolder)
                   
                  file.close()
+                 os.remove(os.path.join(root, file))
              except:
                 failed_unzip.append(sensor)
                 pass
