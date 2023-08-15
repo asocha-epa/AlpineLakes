@@ -19,6 +19,7 @@ import pandas as pd
 import ClipToLake2
 import landsatQAmask
 import time
+import shutil
 
 #get starting time to get run time
 st = time.time()
@@ -103,7 +104,7 @@ for folder in os.listdir(wd):
                         #if sum is none, the areas don't intersect and the raster can be ignored
                         stats = zonal_stats(buff_df, ST_array, affine = affine, nodata = nodata, stats = 'sum')[0]
                         if stats['sum'] is None:
-                            os.rmdir(newDir)
+                            shutil.rmtree(newDir)
                             break
                             continue
                         else:           
