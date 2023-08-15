@@ -36,11 +36,10 @@ def tempToCelcius(val):
 #create empty lists to store values for creating a df
 date = []
 meanTemp_C = []
-majTemp_C = []
+fifthPercentTemp_C = []
 ninetyPercentTemp_C = []
-seventyPercentTemp_C = []
-maxTemp_C = []
-minTemp_C = []
+tenthPercentTemp_C = []
+ninetyfifthPercentTemp_C = []
 year = []
 
 #get lake boundary file
@@ -104,6 +103,8 @@ for folder in os.listdir(wd):
                         #if sum is none, the areas don't intersect and the raster can be ignored
                         stats = zonal_stats(buff_df, ST_array, affine = affine, nodata = nodata, stats = 'sum')[0]
                         if stats['sum'] is None:
+                            os.rmdir(newDir)
+                            break
                             continue
                         else:           
                             #run functions from ClipToLake2 script, **clipRaster output is a tuple with the array and the meta
@@ -125,7 +126,7 @@ for folder in os.listdir(wd):
                             nonmasked_pix = np.count_nonzero(ST_masked)
                             percent = nonmasked_pix / total_pix
                             
-                            if percent < 0: #need to establish a threshold here
+                            if percent < 0.5: #need to establish a threshold here
                                 continue
                             else:
                                 #set zeros as no data, need to convert to float array
@@ -144,7 +145,7 @@ for folder in os.listdir(wd):
                                 
                                 #run zonal statistics on the ST raster within the lake boundary 
                                 print(f'Running zonal stats on {file}\n')
-                                stats = zonal_stats(buff_df, out_file, affine = affine, nodata = nodata, stats = 'max min mean majority percentile_90 percentile_75')[0]
+                                stats = zonal_stats(buff_df, out_file, affine = affine, nodata = nodata, stats = 'mean  percentile_5 percentile_10 percentile_90 percentile_95')[0]
 
                                 #get values and store them in the empty lists
                                 nameSplit = ST_name.split('_')
@@ -152,28 +153,26 @@ for folder in os.listdir(wd):
                                 date.append(fileDate)
                                 year.append(folder)
 
-                                majTemp_C.append(stats['majority'])
+                                fifthPercentTemp_C.append(stats['percentile_5'])
                                 ninetyPercentTemp_C.append(stats['percentile_90'])
-                                seventyPercentTemp_C.append(stats['percentile_75'])
+                                tenthPercentTemp_C.append(stats['percentile_10'])
                                 meanTemp_C.append(stats['mean'])
-                                maxTemp_C.append(stats['max'])
-                                minTemp_C.append(stats['min'])
+                                ninetyfifthPercentTemp_C.append(stats['percentile_95'])
 
 #create dataframe with dates and the statistics for each date
-df = pd.DataFrame(zip(date, year, minTemp_C, maxTemp_C, meanTemp_C, majTemp_C, seventyPercentTemp_C, ninetyPercentTemp_C),
-                  columns = ['date', 'year', 'minTemp_C', 'maxTemp_C', 'meanTemp_C', 'majTemp_C', '75th%Temp_C', '90th%Temp_C'])
+df = pd.DataFrame(zip(date, year, fifthPercentTemp_C,tenthPercentTemp_C, meanTemp_C,  ninetyPercentTemp_C,  ninetyfifthPercentTemp_C),
+                  columns = ['date', 'year', 'fifthPercentTemp_C', 'tenthPercentTemp_C', 'meanTemp_C', 'ninetyPercentTemp_C', 'ninetyfifth%Temp_C'])
 
 print(df.head())
 #%%
-df.to_csv(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\TahoeTestRun.csv')                          
+df.to_csv(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\TahoeTestRun_Threshold50.csv')                          
 
 #get run time
 et = time.time()
 res = et - st
 final_res = res / 60
 print('Execution time:', final_res, 'minutes')                       
-                   
-               
+         
            
         
 
