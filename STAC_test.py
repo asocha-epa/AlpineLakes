@@ -9,6 +9,41 @@ Using tutorital from USGS https://www.usgs.gov/media/files/landsat-stac-tutorial
 @author: ASOCHA
 """
 import requests 
+import tkinter as tk
+from tkinter.filedialog import askdirectory, askopenfilename
+import geopandas as gpd
+
+#get rid of root window
+root = tk.Tk()
+root.withdraw()
+
+#make sure window comes to front
+root.attributes('-topmost', 1)
+
+#get working directory path
+print('select download destination folder', "\n")
+wd = askdirectory(title = 'Select Directory Folder')
+
+#set working directory
+os.chdir(wd)
+
+#get lake boundary file
+print('select lake boundary file', "\n")
+lakes = askopenfilename(title = 'Select Lake Boundary File')
+
+#read in lake boundary file, convert to wgs84, and get bounding box values for running search
+shp = gpd.read_file(lakes)
+shp_wgs84 = shp.to_crs(epsg = 4326)
+minx = shp_wgs84.total_bounds[0]
+miny = shp_wgs84.total_bounds[1]
+maxx = shp_wgs84.total_bounds[2]
+maxy = shp_wgs84.total_bounds[3]
+
+bbox = []
+bbox.append(minx)
+bbox.append(miny)
+bbox.append(maxx)
+bbox.append(maxy)
 
 stac = 'https://landsatlook.usgs.gov/stac-server'
 
