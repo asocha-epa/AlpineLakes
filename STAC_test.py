@@ -16,6 +16,8 @@ stac_response = r.get(stac).json()
 
 catalog_links = stac_response['links']
 
+search = [l['href'] for l in catalog_links if l['rel'] == 'search'][0] 
+
 params = {}
 
 # create a list of bound box coordinates for area of interest
