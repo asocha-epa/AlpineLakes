@@ -42,19 +42,50 @@ query = r.post(search, json=params).json()
 
 feat = query['features']
 
+failed_downloads = []
+
 #iterate through each of the returned items
 for i in len(feat):
     item = feat[i]
     ID = item['id']
     QA = item['qa_pixel']
+    QA_file = ID + "_QA_PIXEL.TIF"
     
     if 'lwir' in item:
         ST = item['lwir']
+        ST_file = ID + "_ST_B6.TIF"
         
     if 'lwir11' in item:
         ST = item['lwir11']
+        ST_file = ID + "_ST_B10.TIF"
         
     QA_link = QA['href']
     ST_link = ST['href']
     
-    
+    #check to see if the file is already downloaded before downloading
+   folder = os.path.join(wd, ID))
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+    os.chdir(folder)
+    if not os.path.exists(os.path.join(folder, QA_file)):
+        try:
+            print(f'downloading {QA_link}\n to {folder}\n')
+            #send request for url to get content 
+            r = requests.get(QA_link)
+            with open(QA_file, 'wb') as f:
+                f.write(r.content)
+        except:
+            print("download failed")
+            failed_downloads.append(QA_link)
+            
+    if not os.path.exists(os.path.join(folder, ST_file)):
+        try:
+            print(f'downloading {ST_link}\n to {folder}\n')
+            #send request for url to get content 
+            r = requests.get(ST_link)
+            with open(ST_file, 'wb') as f:
+                f.write(r.content)
+        except:
+            print("download failed")
+            failed_downloads.append(QA_link)
+    break
