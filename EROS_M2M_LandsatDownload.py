@@ -288,7 +288,6 @@ for root, dirs, files in os.walk(wd):
                  file.extractall(sensorFolder)
                   
                  file.close()
-                 os.remove(os.path.join(root, file))
              except:
                 failed_unzip.append(sensor)
                 pass
@@ -303,6 +302,12 @@ if len(failed_unzip) > 0:
         r = requests.get(url)
         with open(file, 'wb') as f:
             f.write(r.content)
+            f.close()
+
+for root, dirs, files in os.walk(wd):
+    for file in files:
+        if file.endswith('.tar'):
+            os.remove(os.path.join(root, file))
 
 #get run time
 et = time.time()
