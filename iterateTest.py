@@ -144,8 +144,9 @@ for folder in os.listdir(wd):
                                 #write out final raster
                                 out_file_name = ST_name + '_final_degCelcius.tif'
                                 out_file = os.path.join(newDir, out_file_name)
-                                with rio.open(out_file, 'w', decimal_precision=4,  **ST_clip_meta) as dst:
-                                    dst.write(temp_cel)
+                                if not os.path.exists(out_file):
+                                    with rio.open(out_file, 'w', decimal_precision=4,  **ST_clip_meta) as dst:
+                                        dst.write(temp_cel)
                                 
                                 #run zonal statistics on the ST raster within the lake boundary 
                                 print(f'Running zonal stats on {file}\n')
