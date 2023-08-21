@@ -70,6 +70,7 @@ wd = askdirectory(title = 'Select Directory Folder')
 
 #go through each folder and subfolder in the root folder to get raster files, skipping the tar zip files              
 for folder in os.listdir(wd):
+    print(f'Processing {folder}\n')
     rootDir = os.path.join(wd, folder)
     for root, subDirs, files in os.walk(rootDir):
         for subDir in subDirs:
@@ -86,14 +87,18 @@ for folder in os.listdir(wd):
                         ST_name = file[:-4]
                         
                         #read in raster bands
-                        surf_temp = rio.open(ST_band)
-                        ST_array = surf_temp.read(1)
-                        profile = surf_temp.profile
-                        affine = surf_temp.transform
-                        nodata = surf_temp.nodata
-                        
-                        QA_pixel = rio.open(QA_band)
-                        QA_array = QA_pixel.read(1)
+                        try:
+                            surf_temp = rio.open(ST_band)
+                            ST_array = surf_temp.read(1)
+                            profile = surf_temp.profile
+                            affine = surf_temp.transform
+                            nodata = surf_temp.nodata
+                            
+                            QA_pixel = rio.open(QA_band)
+                            QA_array = QA_pixel.read(1)
+                        except Exception as e:
+                            print(e)
+                            continue
                         
                         #project lake df to the same crs
                         buff_df = buff_df.to_crs(surf_temp.crs)
@@ -147,7 +152,7 @@ for folder in os.listdir(wd):
                                 if not os.path.exists(out_file):
                                     with rio.open(out_file, 'w', decimal_precision=4,  **ST_clip_meta) as dst:
                                         dst.write(temp_cel)
-                                
+                            
                                 #run zonal statistics on the ST raster within the lake boundary 
                                 print(f'Running zonal stats on {file}\n')
                                 stats = zonal_stats(buff_df, out_file, affine = affine, nodata = nodata, stats = 'mean  percentile_5 percentile_10 percentile_90 percentile_95')[0]
