@@ -74,16 +74,15 @@ for folder in os.listdir(wd):
     for root, subDirs, files in os.walk(rootDir):
         for subDir in subDirs:
             newDir = os.path.join(rootDir, subDir)
-            os.chdir(newDir)
             if subDir.endswith('.tar'):
                 continue
             else:
                 #get the QA and the surface temperature bands, save name for exporting files
-                for file in os.listdir('.'):
+                for file in os.listdir(newDir):
                     if file.endswith('QA_PIXEL.TIF'):
-                        QA_band = file
+                        QA_band = os.path.join(newDir, file)
                     if file.endswith('ST_B10.TIF') or file.endswith('ST_B6.TIF'):
-                        ST_band = file
+                        ST_band = os.path.join(newDir, file)
                         ST_name = file[:-4]
                         
                         #read in raster bands
@@ -104,8 +103,9 @@ for folder in os.listdir(wd):
                         #if sum is none, the areas don't intersect and the raster can be ignored
                         stats = zonal_stats(buff_df, ST_array, affine = affine, nodata = nodata, stats = 'sum')[0]
                         if stats['sum'] is None:
+                            surf_temp.close()
+                            QA_pixel.close()
                             shutil.rmtree(newDir)
-                            break
                             continue
                         else:           
                             #run functions from ClipToLake2 script, **clipRaster output is a tuple with the array and the meta
@@ -128,6 +128,8 @@ for folder in os.listdir(wd):
                             percent = nonmasked_pix / total_pix
                             
                             if percent < 0.5: #need to establish a threshold here
+                                surf_temp.close()
+                                QA_pixel.close()
                                 continue
                             else:
                                 #set zeros as no data, need to convert to float array
@@ -140,7 +142,8 @@ for folder in os.listdir(wd):
                                 ST_clip_meta.update(dtype=rio.float32)
                                 
                                 #write out final raster
-                                out_file = ST_name + '_final_degCelcius.tif'
+                                out_file_name = ST_name + '_final_degCelcius.tif'
+                                out_file = os.path.join(newDir, out_file_name)
                                 with rio.open(out_file, 'w', decimal_precision=4,  **ST_clip_meta) as dst:
                                     dst.write(temp_cel)
                                 
@@ -159,14 +162,17 @@ for folder in os.listdir(wd):
                                 tenthPercentTemp_C.append(stats['percentile_10'])
                                 meanTemp_C.append(stats['mean'])
                                 ninetyfifthPercentTemp_C.append(stats['percentile_95'])
-
+                                
+                                surf_temp.close()
+                                QA_pixel.close()
+                                
 #create dataframe with dates and the statistics for each date
 df = pd.DataFrame(zip(date, year, fifthPercentTemp_C,tenthPercentTemp_C, meanTemp_C,  ninetyPercentTemp_C,  ninetyfifthPercentTemp_C),
                   columns = ['date', 'year', 'fifthPercentTemp_C', 'tenthPercentTemp_C', 'meanTemp_C', 'ninetyPercentTemp_C', 'ninetyfifth%Temp_C'])
 
 print(df.head())
 #%%
-df.to_csv(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\TahoeTestRun_Threshold50.csv')                          
+df.to_csv(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\FlatheadTestRun_Threshold50.csv')                          
 
 #get run time
 et = time.time()
