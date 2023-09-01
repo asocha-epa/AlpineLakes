@@ -142,14 +142,14 @@ if __name__ == '__main__':
     
     # download datasets
     for dataset in datasets:
-        for i in range(2010,2023):
+        for i in range(1983,2023):
             acquisitionFilter = {"end": f"{i}-09-31",
                                      "start": f"{i}-06-01" }        
                 
             payload = {'datasetName' : dataset['datasetAlias'], 
                                     # 'maxResults' : 2,
                                     # 'startingNumber' : 1, 
-                                     'sceneFilter' : { 'cloudCoverFilter' : {"min": 0, "max": 90},
+                                     'sceneFilter' : { 'cloudCoverFilter' : {"min": 0, "max": 10},
                                                       'spatialFilter' : spatialFilter,
                                                       'acquisitionFilter' : acquisitionFilter}}
             
@@ -252,7 +252,7 @@ if __name__ == '__main__':
                                         try:
                                             print(f'downloading {url}\n to {yearFolder}\n')
                                             #send request for url to get content 
-                                            r = requests.get(url)
+                                            r = requests.get(url, timeout = 300)
                                             with open(file, 'wb') as f:
                                                 f.write(r.content)
                                         except:
@@ -264,12 +264,7 @@ if __name__ == '__main__':
             else:
                 print("Search found no results.\n")
                 
-    # Logout so the API Key cannot be used anymore
-    endpoint = "logout"  
-    if sendRequest(serviceUrl + endpoint, None, apiKey) == None:        
-        print("Logged Out\n\n")
-    else:
-        print("Logout Failed\n\n")
+
         
 #%%#        
 #Added to unzip to downloaded zip files into folders of the same name
@@ -314,3 +309,10 @@ et = time.time()
 res = et - st
 final_res = res / 60
 print('Execution time:', final_res, 'minutes')
+
+# Logout so the API Key cannot be used anymore
+endpoint = "logout"  
+if sendRequest(serviceUrl + endpoint, None, apiKey) == None:        
+    print("Logged Out\n\n")
+else:
+    print("Logout Failed\n\n")
