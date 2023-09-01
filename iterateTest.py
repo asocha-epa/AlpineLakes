@@ -43,6 +43,8 @@ tenthPercentTemp_C = []
 ninetyfifthPercentTemp_C = []
 year = []
 
+numPixels = []
+
 #get lake boundary file
 lakes = askopenfilename(title = 'Select Lake Boundary File')
 # Reading in the input file
@@ -67,6 +69,8 @@ buff_df = buff_df.to_crs(input_crs)
 #ask user to select folder for directory
 print('select folder', "\n")
 wd = askdirectory(title = 'Select Directory Folder')
+
+failed = []
 
 #go through each folder and subfolder in the root folder to get raster files, skipping the tar zip files              
 for folder in os.listdir(wd):
@@ -98,6 +102,7 @@ for folder in os.listdir(wd):
                             QA_array = QA_pixel.read(1)
                         except Exception as e:
                             print(e)
+                            failed.append(ST_band)
                             continue
                         
                         #project lake df to the same crs
@@ -132,11 +137,12 @@ for folder in os.listdir(wd):
                             nonmasked_pix = np.count_nonzero(ST_masked)
                             percent = nonmasked_pix / total_pix
                             
-                            if percent < 0.5: #need to establish a threshold here
+                            if percent < 0.2: #need to establish a threshold here
                                 surf_temp.close()
                                 QA_pixel.close()
                                 continue
                             else:
+                                numPixels.append(nonmasked_pix)
                                 #set zeros as no data, need to convert to float array
                                 ST_float = ST_masked.astype('float')
                                 ST_float[ST_float == 0] = 'nan'
@@ -173,18 +179,18 @@ for folder in os.listdir(wd):
                                 QA_pixel.close()
                                 
 #create dataframe with dates and the statistics for each date
-df = pd.DataFrame(zip(date, year, fifthPercentTemp_C,tenthPercentTemp_C, meanTemp_C,  ninetyPercentTemp_C,  ninetyfifthPercentTemp_C),
-                  columns = ['date', 'year', 'fifthPercentTemp_C', 'tenthPercentTemp_C', 'meanTemp_C', 'ninetyPercentTemp_C', 'ninetyfifth%Temp_C'])
+df = pd.DataFrame(zip(date, year, fifthPercentTemp_C,tenthPercentTemp_C, meanTemp_C,  ninetyPercentTemp_C,  ninetyfifthPercentTemp_C, numPixels),
+                  columns = ['date', 'year', 'fifthPercentTemp_C', 'tenthPercentTemp_C', 'meanTemp_C', 'ninetyPercentTemp_C', 'ninetyfifth%Temp_C', 'numPixels'])
 
 print(df.head())
 #%%
-df.to_csv(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\FlatheadTestRun_Threshold50.csv')                          
+df.to_csv(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\FlatheadTestRun_Threshold20.csv')                          
 
 #get run time
 et = time.time()
 res = et - st
 final_res = res / 60
-print('Execution time:', final_res, 'minutes')                       
+print('Execution time:', round(final_res, 3), 'minutes')                       
          
            
         
