@@ -130,11 +130,11 @@ for folder in os.listdir(wd):
                             ST_clip_array = ST_clip[0]
                             ST_clip_meta = ST_clip[1]
                             
-                            #get cloud values by unpacking the QA Pixel band
-                            QA_unpacked = landsatQAmask.get_mask(QA_clip_array)
+                            #mask out clouds using QA band with functions from landsatQAmask script
+                            ST_masked = landsatQAmask.mask_clouds(QA_clip_array, ST_clip_array)
                             
                             #check for any zeros in the clipped array as these are clouds or shadows
-                            if not np.all(QA_unpacked): #need to establish a threshold here
+                            if not np.all(ST_masked): #need to establish a threshold here
                                 surf_temp.close()
                                 QA_pixel.close()
                                 continue
