@@ -135,7 +135,7 @@ for folder in os.listdir(wd):
                             
                             #check for any zeros in the clipped array as these are clouds or shadows
                             if not np.all(QA_clouds):
-                                print(f'clouds present - skipping {file}')
+                                print(f'clouds present - skipping {file}\n')
                                 surf_temp.close()
                                 QA_pixel.close()
                                 continue
@@ -176,8 +176,8 @@ for folder in os.listdir(wd):
                                 QA_pixel.close()
                                 
 #create dataframe with dates and the statistics for each date
-df = pd.DataFrame(zip(date, year, fifthPercentTemp_C,tenthPercentTemp_C, meanTemp_C,  ninetyPercentTemp_C,  ninetyfifthPercentTemp_C, numPixels),
-                  columns = ['date', 'year', 'fifthPercentTemp_C', 'tenthPercentTemp_C', 'meanTemp_C', 'ninetyPercentTemp_C', 'ninetyfifth%Temp_C', 'numPixels'])
+df = pd.DataFrame(zip(date, year, fifthPercentTemp_C,tenthPercentTemp_C, meanTemp_C,  ninetyPercentTemp_C,  ninetyfifthPercentTemp_C),
+                  columns = ['date', 'year', 'fifthPercentTemp_C', 'tenthPercentTemp_C', 'meanTemp_C', 'ninetyPercentTemp_C', 'ninetyfifth%Temp_C'])
 
 print(df.head())
 #%%
