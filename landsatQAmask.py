@@ -46,5 +46,15 @@ def mask_clouds(QA_band, ST_band):
     
     return rmClouds
 
+def cloud_mask(QA_band):
+    # Get masks
+    cloud_mask = np.vectorize(get_mask)(QA_band,type='cloud')
+    shadow_mask = np.vectorize(get_mask)(QA_band,type='shadow')
+    dilated_cloud_mask = np.vectorize(get_mask)(QA_band,type='dilated_cloud')
+    cirrus_mask = np.vectorize(get_mask)(QA_band,type='cirrus')
 
+    # get mask for cloudy image
+    mask = cloud_mask*shadow_mask*dilated_cloud_mask*cirrus_mask
+    
+    return mask
 
