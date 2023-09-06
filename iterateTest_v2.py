@@ -178,10 +178,12 @@ for folder in os.listdir(wd):
 #create dataframe with dates and the statistics for each date
 df = pd.DataFrame(zip(date, year, fifthPercentTemp_C,tenthPercentTemp_C, meanTemp_C,  ninetyPercentTemp_C,  ninetyfifthPercentTemp_C),
                   columns = ['date', 'year', 'fifthPercentTemp_C', 'tenthPercentTemp_C', 'meanTemp_C', 'ninetyPercentTemp_C', 'ninetyfifth%Temp_C'])
-
+#get rid of any values below 0 as these are errors since we should only be getting cloud free pixels
+columns = ['fifthPercentTemp_C', 'tenthPercentTemp_C', 'meanTemp_C', 'ninetyPercentTemp_C', 'ninetyfifth%Temp_C']
+df = df[df[columns].min(axis=1) >= 0]
 print(df.head())
 #%%
-df.to_csv(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\FlatheadTestRun_NoClouds.csv')                          
+df.to_csv(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\TahoeTestRun_NoClouds.csv')                          
 
 #get run time
 et = time.time()
