@@ -4,7 +4,9 @@ Created on Wed Jul 26 09:07:35 2023
 
 @author: ASOCHA
 
-Building on a sample script provided by the USGS for downloading data from their M2M API to download landsat ard surface temperature data
+Building on a sample script provided by the USGS for downloading data from their M2M API to download landsat
+
+original: https://m2m.cr.usgs.gov/api/docs/example/download_data-py
 """
 # =============================================================================
 #  USGS/EROS Inventory Service Example
@@ -108,8 +110,9 @@ def sendRequest(url, data, apiKey = None):
 if __name__ == '__main__': 
     
     # **CHANGED HERE use token instead of password and got rid of the arguments for now 
-    username = 'asocha'
-    token = 'MDEmWzt6m!qDLb45A_8K9e3XLYSU8I38fXf1ll7cbxiXovf5MUKzVZoltJ5WXV!4'     
+    #if you want to use password, see original script linked at the top
+    username = 'INSERT USERNAME HERE'
+    token = 'INSERT TOKEN HERE'     
 
     print("\nRunning Scripts...\n")
     
