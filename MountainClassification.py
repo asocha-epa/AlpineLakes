@@ -50,6 +50,7 @@ buff_df = input_df
 buff_df.geometry = buff_df.geometry.buffer(buffer)
 
 #%%
+#create empty lists to store the data
 UNIQUE_ID =[]
 low_mtn = []
 high_mtn = []
@@ -66,6 +67,7 @@ for i in range(len(buff_df)):
     #get counts for each pixel value within the polygon
     unique_counts = zonal_stats(geom, landforms_arr, affine = affine, nodata = nodata, categorical = True)[0]
     
+    #get counts of the mountain pixels for each lake
     if 8 in unique_counts:
         low_mtn_pix = unique_counts[8]
     else:
@@ -78,7 +80,8 @@ for i in range(len(buff_df)):
 
     low_mtn.append(low_mtn_pix)
     high_mtn.append(high_mtn_pix)
-    
+
+#export a table with the lake IDs and their mountain pixel counts    
 out_df = pd.DataFrame(zip(UNIQUE_ID, low_mtn, high_mtn), columns = ['UNIQUE_ID', 'Low_Mtn_count', 'High_Mtn_count'])
 out_df.to_csv(f'NLA_integrated_sample_mtnlakes_{buffer}m.csv')
     
