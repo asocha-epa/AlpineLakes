@@ -63,7 +63,7 @@ miny = round(shp_wgs84.total_bounds[1], 4)
 maxx =round(shp_wgs84.total_bounds[2], 4)
 maxy = round(shp_wgs84.total_bounds[3], 4)
 
-# send http request
+# send http request - from original
 def sendRequest(url, data, apiKey = None):  
     json_data = json.dumps(data)
     
@@ -145,10 +145,12 @@ if __name__ == '__main__':
     
     # download datasets
     for dataset in datasets:
+        #had issue with not doing every year, so made it an iteration through years of interest
         for i in range(1983,2023):
+            #filter by desired aquisition dates, here I used summer months only
             acquisitionFilter = {"end": f"{i}-09-31",
                                      "start": f"{i}-06-01" }        
-                
+            #add in cloud cover percentage filter    
             payload = {'datasetName' : dataset['datasetAlias'], 
                                     # 'maxResults' : 2,
                                     # 'startingNumber' : 1, 
@@ -236,14 +238,11 @@ if __name__ == '__main__':
                             #split the scene name into parts
                             nameSplit = name.split('_')
                             #get the date from the name to filter by month (the fourth item in the list from splitting the name)
-                            #check list length bc there are some with just an 'frbj' in them
+                            #check list length bc there are some with just an 'frbj' in them and don't want to use them
                             if len(nameSplit) > 4:
-                                # date = nameSplit[3]
-                                # format = '%Y%m%d'
-                                # dateFormat = datetime.strptime(date, format)
-                                # month = dateFormat.month
-                                #only get surface temperature values from desired months
-                                if nameSplit[-1] == 'ST': #and month == 7:
+                                #get the surface temperature bands
+                                if nameSplit[-1] == 'ST': 
+                                    #create tar file name for downloading
                                     file = name + '.tar'  
                                     print(file)
                                     #check to see if the file is already downloaded before downloading
@@ -252,6 +251,7 @@ if __name__ == '__main__':
                                         os.mkdir(yearFolder)
                                     os.chdir(yearFolder)
                                     if not os.path.exists(os.path.join(yearFolder, file)):
+                                        #try downloading the file from the url, if it doesn't work, add the url to a list
                                         try:
                                             print(f'downloading {url}\n to {yearFolder}\n')
                                             #send request for url to get content 
@@ -289,7 +289,8 @@ for root, dirs, files in os.walk(wd):
              except:
                 failed_unzip.append(sensor)
                 pass
-            
+
+#retry the files that failed to unzip
 if len(failed_unzip) > 0:
     url = 'https://landsatlook.usgs.gov/gen-bundle?landsat_product_id='
     for file in failed_unzip:
@@ -302,6 +303,7 @@ if len(failed_unzip) > 0:
             f.write(r.content)
             f.close()
 
+#delete the tar files after they have been unzipped
 for root, dirs, files in os.walk(wd):
     for file in files:
         if file.endswith('.tar'):
