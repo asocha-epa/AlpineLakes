@@ -137,7 +137,7 @@ for folder in os.listdir(wd):
                             nonmasked_pix = np.count_nonzero(ST_masked)
                             percent = nonmasked_pix / total_pix
                             
-                            if percent < 0.2: #need to establish a threshold here
+                            if percent < 0.8: #need to establish a threshold here
                                 surf_temp.close()
                                 QA_pixel.close()
                                 continue
@@ -181,10 +181,12 @@ for folder in os.listdir(wd):
 #create dataframe with dates and the statistics for each date
 df = pd.DataFrame(zip(date, year, fifthPercentTemp_C,tenthPercentTemp_C, meanTemp_C,  ninetyPercentTemp_C,  ninetyfifthPercentTemp_C, numPixels),
                   columns = ['date', 'year', 'fifthPercentTemp_C', 'tenthPercentTemp_C', 'meanTemp_C', 'ninetyPercentTemp_C', 'ninetyfifth%Temp_C', 'numPixels'])
-
+columns = ['fifthPercentTemp_C', 'tenthPercentTemp_C', 'meanTemp_C', 'ninetyPercentTemp_C', 'ninetyfifth%Temp_C']
+df = df[df[columns].min(axis=1) >= 0]
+print(df.head())
 print(df.head())
 #%%
-df.to_csv(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\FlatheadTestRun_Threshold20.csv')                          
+df.to_csv(r'C:\Users\ASOCHA\OneDrive - Environmental Protection Agency (EPA)\Profile\Documents\Alpine Lakes\FlatheadTestRun_Threshold80.csv')                          
 
 #get run time
 et = time.time()
